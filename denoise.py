@@ -51,21 +51,6 @@ def get_var(cD):
     var = abs_coeffs[pos] / 0.6545
     return var
 
-def get_baseline(data, wavelets_name='sym8', level=5):
-    '''
-
-    :param data: signal
-    :param wavelets_name: wavelets name in PyWavelets, 'sym8' as default
-    :param level: deconstruct level, 5 as default
-    :return: baseline signal
-    '''
-    wave = pywt.Wavelet(wavelets_name)
-    coeffs = pywt.wavedec(data, wave, level=level)
-    for i in range(1, len(coeffs)):
-        coeffs[i] *= 0
-    baseline = pywt.waverec(coeffs, wave)
-    return baseline
-
 def tsd(th, data, metodo, mode='soft', wavelet='sym8', level=5):
     ondaleta = pywt.Wavelet(wavelet)
     data_ = data[:]
