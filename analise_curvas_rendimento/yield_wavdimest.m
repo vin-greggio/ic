@@ -1,12 +1,7 @@
 
 logFerRate = csvread('parte1.csv');
 
-% logaritmo das taxas
-%logFerRate = [FertRate(1,:);FertRate(2:14,1) log(FertRate(2:14,2:114))];
-
-% log das taxas de fertilidade vistos como séries temporais para cada faixa
-% de idade
-%plot(logFerRate(1,2:32),logFerRate(3:14,2:32))
+%Foram utilizados os códigos fornecidos por Rodney Fonseca
 
 %set(gca,'LineStyleOrder',{'-','--',':','-.','-','--','
 % Nessa etapa será feita uma análise de componentes principais funcional
