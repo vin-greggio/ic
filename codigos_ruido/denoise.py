@@ -78,6 +78,7 @@ def tsd(th, data, metodo, mode='soft', wavelet='sym8', level=5):
     return thresholded_data
 
 def cross_validation(Dados, Wavelet, Modo,n):
+    #função desenvolvida em conjunto com Vitor Ribas Perrone
     Even = []
     Odd = []
     for i in range(n):
