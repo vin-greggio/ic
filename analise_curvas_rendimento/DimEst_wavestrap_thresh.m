@@ -1,3 +1,5 @@
+%Essa função foi cedida por Rodney Fonseca
+
 function [ vd0p1_boot ] = DimEst_wavestrap_thresh( A, NREP, B, p, N, wname)
 % Nessa função é realizado o procedimento bootstrap para estimar a 
 % dimensão do processo, as decomposições obtidas são aproveitadas na
