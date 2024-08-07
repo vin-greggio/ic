@@ -5,38 +5,17 @@ import math
 
 def trivial(var, coeffs, a):
     return abs(a)
-
-def ogden(var, coeffs, a):
-    coeffs_dumm = []
-    for i in range(len(coeffs)):
-        coeffs_dumm.append(abs(coeffs[i]))
-    #alpha-quantile
-    maxim = math.pow(max(coeffs_dumm), 2)
-    for i in range(len(coeffs)):
-        squared = math.pow(coeffs_dumm[i], 2)
-        if (squared>1.6449):
-            coeffs_dumm[i] = 0
-    thre = max(coeffs_dumm)
-    print(thre)
-    return thre
     
 
-def sure_shrink(var, coeffs, a):
-    N = len(coeffs)
-    sqr_coeffs = []
-    for coeff in coeffs:
-        sqr_coeffs.append(math.pow(coeff, 2))
-    sqr_coeffs.sort()
-    pos = 0
-    r = 0
-    for idx, sqr_coeff in enumerate(sqr_coeffs):
-        new_r = (N - 2 * (idx + 1) + (N - (idx + 1))*sqr_coeff + sum(sqr_coeffs[0:idx+1]))
-        if r == 0 or r > new_r:
-            r = new_r
-            pos = idx
-    thre = math.sqrt(sqr_coeffs[pos])
-    print('ssss')
-    return thre
+def sure_shrink(var, signal, a):
+    m = signal.shape[0]
+    sorted_signal = np.sort(np.abs(signal))**2
+    c = np.linspace(m-1, 0, m)
+    s = np.cumsum(sorted_signal) + c * sorted_signal
+    risk = (m - (2.0 * np.arange(m)) + s) / m
+    ibest = np.argmin(risk)
+    thr = np.sqrt(sorted_signal[ibest])
+    return thr
 
 def visu_shrink(var, coeffs, a):
     N = len(coeffs)
@@ -87,61 +66,57 @@ def get_baseline(data, wavelets_name='sym8', level=5):
     baseline = pywt.waverec(coeffs, wave)
     return baseline
 
-def tsd(th, data, method, mode='soft', wavelets_name='sym8', level=5):
-    '''
-
-    :param data: signal
-    :param method: {'visushrink', 'sureshrink', 'heursure', 'minmax'}, 'sureshrink' as default
-    :param mode: {'soft', 'hard', 'garotte', 'greater', 'less'}, 'soft' as default
-    :param wavelets_name: wavelets name in PyWavelets, 'sym8' as default
-    :param level: deconstruct level, 5 as default
-    :return: processed data
-    '''
-    methods_dict = {'visushrink': visu_shrink, 'sureshrink': sure_shrink, 'heursure': heur_sure, 'minmax': mini_max, 'ogden': ogden, 'trivial': trivial}
-    wave = pywt.Wavelet(wavelets_name)
-
+def tsd(th, data, metodo, mode='soft', wavelet='sym8', level=5):
+    ondaleta = pywt.Wavelet(wavelet)
     data_ = data[:]
 
-    (cA, cD) = pywt.dwt(data=data_, wavelet=wave)
+    (cA, cD) = pywt.dwt(data=data_, wavelet=ondaleta)
     var = get_var(cD)
-
-    coeffs = pywt.wavedec(data=data, wavelet=wavelets_name, level=level)
+    coeffs = pywt.wavedec(data=data, wavelet=ondaleta, level=level)
 
     for idx, coeff in enumerate(coeffs):
         if idx == 0:
             continue
-        thre = methods_dict[method](var, coeff, th)
+        #thre = methods_dict[method](var, coeff, th)
+        elif metodo == 'ss':
+            thre = sure_shrink(0,coeff,0)
+        elif metodo == 'vs':
+            thre = visu_shrink(var,coeff,0)
+        elif metodo == 'mm':
+            thre = mini_max(var,coeff,0)
+        elif metodo == 'trivial':
+            thre = trivial(var,coeff,th)
         coeffs[idx] = pywt.threshold(coeffs[idx], thre, mode=mode)
 
-    thresholded_data = pywt.waverec(coeffs, wavelet=wavelets_name)
+    thresholded_data = pywt.waverec(coeffs, wavelet=ondaleta)
 
     return thresholded_data
 
-def cross_validation(Dados, Wavelet, Modo):
+def cross_validation(Dados, Wavelet, Modo,n):
     Even = []
     Odd = []
-    for i in range(len(Dados)):
+    for i in range(n):
         if i%2 == 0:
             Odd.append(Dados[i])
-        else:
+        elif 1%2==1:
             Even.append(Dados[i])
     yOdd = []
-    for i in range(int((len(Dados)/2))-1):
+    yEven = []
+    for i in range(int((n/2))-1):
         yOdd.append((Odd[i]+Odd[i+1])/2)
     yOdd.append((Odd[i]+Odd[-1])/2)
-    yEven = []
     for i in range(int((len(Dados)/2))-1):
         yEven.append((Even[i]+Even[-1])/2)
     yEven.append((Even[i]+Even[-1])/2)
     EvenCoeffs = pywt.wavedec(Even, Wavelet, level = pywt.dwt_max_level(len(Even), Wavelet))
     OddCoeffs = pywt.wavedec(Odd, Wavelet, level = pywt.dwt_max_level(len(Odd), Wavelet))
     Coeffs = []
-    for Coeff in EvenCoeffs:
-        for coeff in Coeff:
-            Coeffs.append(coeff)
+    for i in range(len(EvenCoeffs)):
+        for j in EvenCoeffs[i]:
+            Coeffs.append(j)
     for Coeff in OddCoeffs:
         for coeff in Coeff:
-            Coeffs.append(coeff)
+            Coeffs.append(j)
     t = 0
     Min = []
     for coeff in Coeffs:
@@ -166,25 +141,23 @@ for i in base:
     signal.append(np.sin((2.1*math.pi)/(i+0.05)))
 
 noisy_signal = []
-noise = np.random.normal(0, 0.25, 2048)
+noise = np.random.normal(0, 0.12, 2048)
 for i in range(2048):
     noisy_signal.append(signal[i] + noise[i])
 
-tres = cross_validation(noisy_signal, Wavelet='sym6', Modo='soft')
-denoised_signal_cv = tsd(tres, noisy_signal, method='trivial', mode='soft', wavelets_name='sym6', level = 6)
-denoised_signal_vs = tsd(4, noisy_signal, method='visushrink', mode='soft', wavelets_name='sym6', level = 6)
-denoised_signal_ss = tsd(4, noisy_signal, method='minmax', mode='soft', wavelets_name='sym6', level = 6)
+tres = cross_validation(noisy_signal, 'sym6', 'soft', len(noisy_signal))
+denoised_signal_cv = tsd(tres, noisy_signal, metodo='trivial', mode='soft', wavelet='sym6', level = 6)
+denoised_signal_vs = tsd(4, noisy_signal, metodo='vs', mode='soft', wavelet='sym6', level = 6)
+denoised_signal_ss = tsd(4, noisy_signal, metodo='ss', mode='soft', wavelet='sym6', level = 6)
 fig, ax = plt.subplots(3,2)
-denoised_signal_ogd = tsd(4, noisy_signal, method='ogden', mode='soft', wavelets_name='sym6', level = 6)
-denoised_signal_mm = tsd(4, noisy_signal, method='minmax', mode='soft', wavelets_name='sym6', level = 6)
-ax[1,1].plot(denoised_signal_ogd)
+denoised_signal_mm = tsd(4, noisy_signal, metodo='mm', mode='soft', wavelet='sym6', level = 6)
+#ax[1,1].plot(denoised_signal_ogd)
 ax[0,1].plot(denoised_signal_ss)
 ax[0,0].plot(denoised_signal_vs)
 ax[1,0].plot(denoised_signal_cv)
 ax[2,0].plot(denoised_signal_mm)
 ax[1,0].title.set_text('cross validation')
 ax[0,0].title.set_text('visushrink')
-ax[1,1].title.set_text('ogden&parzen')
 ax[0,1].title.set_text('sureshrink')
 ax[2,0].title.set_text('minimax')
 ax[2,1].plot(noisy_signal)
