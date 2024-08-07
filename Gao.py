@@ -38,54 +38,23 @@ def gao(var,coeffs,a,idx):
         return math.log(len(data))*alp
     else:
         return math.sqrt(math.log(len(data)))*(math.pi/math.sqrt(3))
-
-def ogden(var, coeffs, a, idx):
-    coeffs_dumm = []
-    for i in range(len(coeffs)):
-        coeffs_dumm.append(abs(coeffs[i]))
-    #alpha-quantile
-    maxim = math.pow(max(coeffs_dumm), 2)
-    for i in range(len(coeffs)):
-        squared = math.pow(coeffs_dumm[i], 2)
-        if (squared>1.6449):
-            coeffs_dumm[i] = 0
-    thre = max(coeffs_dumm)
-    print(thre)
-    return thre
     
 
-def sure_shrink(var, coeffs, a, idx):
-    N = len(coeffs)
-    sqr_coeffs = []
-    for coeff in coeffs:
-        sqr_coeffs.append(math.pow(coeff, 2))
-    sqr_coeffs.sort()
-    pos = 0
-    r = 0
-    for idx, sqr_coeff in enumerate(sqr_coeffs):
-        new_r = (N - 2 * (idx + 1) + (N - (idx + 1))*sqr_coeff + sum(sqr_coeffs[0:idx+1]))
-        if r == 0 or r > new_r:
-            r = new_r
-            pos = idx
-    thre = math.sqrt(sqr_coeffs[pos])
-    return thre
+def sure_shrink(var, signal, a):
+    m = signal.shape[0]
+    sorted_signal = np.sort(np.abs(signal))**2
+    c = np.linspace(m-1, 0, m)
+    s = np.cumsum(sorted_signal) + c * sorted_signal
+    risk = (m - (2.0 * np.arange(m)) + s) / m
+    ibest = np.argmin(risk)
+    thr = np.sqrt(sorted_signal[ibest])
+    return thr
+
 
 def visu_shrink(var, coeffs, a, idx):
     N = len(coeffs)
     thre = math.sqrt(var) * math.sqrt(2 * math.log(N))
     return thre
-
-def heur_sure(var, coeffs, a, idx):
-    N = len(coeffs)
-    s = 0
-    for coeff in coeffs:
-        s += math.pow(coeff, 2)
-    theta = (s - N) / N
-    miu = math.pow(math.log2(N), 3/2) / math.pow(N, 1/2)
-    if theta < miu:
-        return visu_shrink(var, coeffs)
-    else:
-        return min(visu_shrink(var, coeffs), sure_shrink(var, coeffs))
 
 def mini_max(var, coeffs, a, idx):
     N = len(coeffs)
@@ -104,21 +73,6 @@ def get_var(cD):
     var = abs_coeffs[pos] / 0.6545
     return var
 
-def get_baseline(data, wavelets_name='sym8', level=5):
-    '''
-
-    :param data: signal
-    :param wavelets_name: wavelets name in PyWavelets, 'sym8' as default
-    :param level: deconstruct level, 5 as default
-    :return: baseline signal
-    '''
-    wave = pywt.Wavelet(wavelets_name)
-    coeffs = pywt.wavedec(data, wave, level=level)
-    for i in range(1, len(coeffs)):
-        coeffs[i] *= 0
-    baseline = pywt.waverec(coeffs, wave)
-    return baseline
-
 def tsd(th, data, method, mode='soft', wavelets_name='sym8', level=5):
     '''
 
@@ -129,7 +83,7 @@ def tsd(th, data, method, mode='soft', wavelets_name='sym8', level=5):
     :param level: deconstruct level, 5 as default
     :return: processed data
     '''
-    methods_dict = {'visushrink': visu_shrink, 'sureshrink': sure_shrink, 'heursure': heur_sure, 'minmax': mini_max, 'ogden': ogden, 'trivial': trivial, 'gao': gao}
+    methods_dict = {'visushrink': visu_shrink, 'sureshrink': sure_shrink, 'minmax': mini_max, 'trivial': trivial, 'gao': gao}
     wave = pywt.Wavelet(wavelets_name)
 
     data_ = data[:]
