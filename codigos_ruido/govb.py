@@ -1,4 +1,6 @@
 #Aqui, foram desenvolvidos métodos de seleção de threshold usando, também, como base a Wavelet Toolbox do MATLAB.
+#Neste script, é utilizada a transformada ondaleta discreta e redução de ruído num conjunto de dados que, apesar de possuir
+#dados não-equispaçados no tempo, estão numa distribuição aproximadamente uniforme.
 
 import matplotlib.pyplot as plt
 import pywt
