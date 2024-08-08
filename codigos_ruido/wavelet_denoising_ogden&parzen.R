@@ -1,3 +1,5 @@
+#Aqui, é implementado o método de Ogden & Parzen, teste de hipóteses, para seleção de thresholds, utilizando a linguagem R.
+
 library(wavethresh)
 
 set.seed(2024)
