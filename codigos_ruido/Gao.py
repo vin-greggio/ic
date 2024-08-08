@@ -35,7 +35,7 @@ def gao(var,coeffs,a,idx):
     elif idx==10:
         alp = 0.27
     if idx in [1,2,3,4]:
-        return math.log(len(data))*alp
+        return math.log(len(data)/2)*alp
     else:
         return math.sqrt(math.log(len(data)))*(math.pi/math.sqrt(3))
     
@@ -74,15 +74,7 @@ def get_var(cD):
     return var
 
 def tsd(th, data, method, mode='soft', wavelets_name='sym8', level=5):
-    '''
 
-    :param data: signal
-    :param method: {'visushrink', 'sureshrink', 'heursure', 'minmax'}, 'sureshrink' as default
-    :param mode: {'soft', 'hard', 'garotte', 'greater', 'less'}, 'soft' as default
-    :param wavelets_name: wavelets name in PyWavelets, 'sym8' as default
-    :param level: deconstruct level, 5 as default
-    :return: processed data
-    '''
     methods_dict = {'visushrink': visu_shrink, 'sureshrink': sure_shrink, 'minmax': mini_max, 'trivial': trivial, 'gao': gao}
     wave = pywt.Wavelet(wavelets_name)
 
@@ -104,6 +96,7 @@ def tsd(th, data, method, mode='soft', wavelets_name='sym8', level=5):
     return thresholded_data
 
 def cross_validation(Dados, Wavelet, Modo):
+    #Função cedida por Vitor Ribas Perrone
     Even = []
     Odd = []
     for i in range(len(Dados)):
