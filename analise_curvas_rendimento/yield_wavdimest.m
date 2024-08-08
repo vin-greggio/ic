@@ -3,26 +3,12 @@ logFerRate = csvread('parte1.csv');
 
 %Foram utilizados os códigos fornecidos por Rodney Fonseca
 
-%set(gca,'LineStyleOrder',{'-','--',':','-.','-','--','
-% Nessa etapa será feita uma análise de componentes principais funcional
-% para as log-taxas em função das idades, onde serão usadas os funcionais
-% discretizados (avaliados em pontos específicos), tomando como base o PCA
-% descrito em Ramsay e Silverman (2005, p. 162 e 163). A base usada na
-% expansão dos funcionais será a base de ondaletas.:'})
-%legend('<20','20-24','25-29','30-34','35-39','40-44','>44')
-%legend('Location','southwest')
-%legend('boxoff')
-logFerRate
 
 n = 57;  % número de funcionais
 nt = 64;  % número de pontos usados para cada ano
 u = linspace(0,5.886104031450156,nt);  % nt valores igualmente espaçados de 0 a 5.88
-% matriz para armazenar as funções suavizadas do log das taxas anuais
-% avaliadas nos pontos de u referente às idades das mães
 SmoLogFertRate = zeros(nt,n);
 
-% laço para obter a função suavizada em cada mês, sendo
-% armazenada a função avaliada nos pontos do vetor u
 for k=2:58
     fspl = fit(logFerRate(2:14,1),logFerRate(2:14,k),'smoothingspline');
     SmoLogFertRate(:,(k-1)) = feval(fspl, u);
@@ -34,7 +20,7 @@ SmoLogFertRate
 %*******************************************************************%
 
 % Nessa etapa será feita uma análise de componentes principais funcional
-% para as log-taxas em função das idades, onde serão usadas os funcionais
+% para as taxas em função das maturidades, onde serão usadas os funcionais
 % discretizados (avaliados em pontos específicos), tomando como base o PCA
 % descrito em Ramsay e Silverman (2005, p. 162 e 163). A base usada na
 % expansão dos funcionais será a base de ondaletas.
