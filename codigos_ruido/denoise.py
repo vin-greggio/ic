@@ -1,3 +1,5 @@
+#Aqui, foram desenvolvidos métodos de seleção de threshold usando, também, como base a Wavelet Toolbox do MATLAB.
+
 import matplotlib.pyplot as plt
 import pywt
 import numpy as np
