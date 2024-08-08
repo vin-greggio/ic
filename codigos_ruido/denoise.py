@@ -129,16 +129,16 @@ for i in base:
     signal.append(np.sin((2.1*math.pi)/(i+0.05)))
 
 noisy_signal = []
-noise = np.random.normal(0, 0.35, 2048)
+noise = np.random.normal(0, 0.6, 2048)
 for i in range(2048):
     noisy_signal.append(signal[i] + noise[i])
 
-tres = cross_validation(noisy_signal, 'db4', 'soft', len(noisy_signal))
-denoised_signal_cv = tsd(tres, noisy_signal, metodo='trivial', mode='soft', wavelet='db4', level = pywt.dwt_max_level(2048,'db4'))
-denoised_signal_vs = tsd(4, noisy_signal, metodo='vs', mode='soft', wavelet='db4', level = pywt.dwt_max_level(2048,'db4'))
-denoised_signal_ss = tsd(4, noisy_signal, metodo='ss', mode='soft', wavelet='db4', level = pywt.dwt_max_level(2048,'db4'))
+tres = cross_validation(noisy_signal, 'db6', 'soft', len(noisy_signal))
+denoised_signal_cv = tsd(tres, noisy_signal, metodo='trivial', mode='soft', wavelet='db6', level = pywt.dwt_max_level(2048,'db6'))
+denoised_signal_vs = tsd(4, noisy_signal, metodo='vs', mode='soft', wavelet='db6', level = pywt.dwt_max_level(2048,'db6'))
+denoised_signal_ss = tsd(4, noisy_signal, metodo='ss', mode='soft', wavelet='db6', level = pywt.dwt_max_level(2048,'db6'))
 fig, ax = plt.subplots(3,2)
-denoised_signal_mm = tsd(4, noisy_signal, metodo='mm', mode='soft', wavelet='db4', level = pywt.dwt_max_level(2048,'db4'))
+denoised_signal_mm = tsd(4, noisy_signal, metodo='mm', mode='soft', wavelet='db6', level = pywt.dwt_max_level(2048,'db6'))
 #ax[1,1].plot(denoised_signal_ogd)
 ax[0,1].plot(denoised_signal_ss)
 ax[0,0].plot(denoised_signal_vs)
