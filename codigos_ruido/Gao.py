@@ -1,3 +1,6 @@
+#Aqui, foram desenvolvidos métodos de seleção de threshold usando, também, como base a Wavelet Toolbox do MATLAB.
+#Implementou-se o algoritmo de Gao para estimar o espectro de Fourier de uma função cosseno com ruído.
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
